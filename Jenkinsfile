@@ -3,43 +3,15 @@ pipeline {
 
     tools {
         maven 'Maven'
-        jdk 'JDK'
     }
 
     stages {
-        stage('Cleanup Workspace') {
+        stage('Build & Deploy') {
             steps {
-                cleanWs()
-            }
-        }
-
-        stage('Checkout Code') {
-            steps {
-                git credentialsId: 'github-token', 
-                    url: 'https://github.com/cyberBrain18/MyMavenWebApp.git', 
-                    branch: 'master'
-            }
-        }
-
-        stage('Build & Package') {
-            steps {
+                git url: 'https://github.com/cyberBrain18/MyMavenWebApp.git', branch: 'master'
                 sh 'mvn clean package'
+                sh 'cp target/MymavenWebApp-1.0-SNAPSHOT.war /opt/tomcat/webapps/MymavenWebApp01.war'
             }
-        }
-
-        stage('Deploy to Tomcat') {
-            steps {
-                sh 'sudo cp target/MymavenWebApp-1.0-SNAPSHOT.war /opt/tomcat/webapps/MymavenWebApp01.war'
-            }
-        }
-    }
-
-    post {
-        success {
-            echo "Successfully deployed MymavenWebApp01 to Tomcat on port 9090."
-        }
-        failure {
-            echo "Pipeline failed. Check Jenkins tool names or sudo permissions."
         }
     }
 }
